@@ -66,7 +66,7 @@
 				JSON.parse(str, function(dat:Object) {
 					var amount = dat["data"].length + fetched;
 					trace("fetched: "+amount + " total:" + dat["total"]);
-					loading(amount, dat["data"]);
+					loading(amount, dat["total"]);
 					for (var i in dat["data"]) {
 						var d = dat["data"][i];
 						var a = d["attributes"]

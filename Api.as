@@ -14,8 +14,8 @@
 				JSON.parse(returned, function(dat:Object) {
 					trace("FETCHHOMEPAGE: Parsed JSON");
 					var manga:Array = new Array();
-					for (var i in dat["results"]) {
-						var x = dat["results"][i];
+					for (var i in dat["data"]) {
+						var x = dat["data"][i];
 						
 						var ath:String;
 						var art:String;
@@ -32,12 +32,12 @@
 						}
 						
 						var tags:Array = new Array();
-						for (var j in x["data"]["attributes"]["tags"]) {
-							var y=x["data"]["attributes"]["tags"][j];
+						for (var j in x["attributes"]["tags"]) {
+							var y=x["attributes"]["tags"][j];
 							tags.push(y["attributes"]["name"]["en"]);
 						}
 						
-						manga.push(new Manga(x["data"]["id"], x["data"]["attributes"]["title"]["en"], tags, cov, art, ath, x["data"]["attributes"]["description"]["en"]));
+						manga.push(new Manga(x["id"], x["attributes"]["title"]["en"], tags, cov, art, ath, x["attributes"]["description"]["en"]));
 					}
 					manga.reverse()
 					callback(manga);
@@ -64,14 +64,13 @@
 		fetchText(url + fetched, function (str:String) {
 			try {
 				JSON.parse(str, function(dat:Object) {
-					var amount = dat["results"].length + fetched;
+					var amount = dat["data"].length + fetched;
 					trace("fetched: "+amount + " total:" + dat["total"]);
-					loading(amount, dat["total"]);
-					for (var i in dat["results"]) {
-						var x = dat["results"][i];
-						var d = x["data"];
+					loading(amount, dat["data"]);
+					for (var i in dat["data"]) {
+						var d = dat["data"][i];
 						var a = d["attributes"]
-						var r = x["relationships"];
+						var r = d["relationships"];
 						
 						var group:String = "";
 						for (var j in r) {

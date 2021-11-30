@@ -97,6 +97,9 @@
 	}
 	
 	static function getCoverURL(mangaID:String, filename:String) {
+		if (filename == undefined or mangaID == undefined) {
+			return "https://mangadex.org/_nuxt/img/cover-placeholder.d12c3c5.jpg";
+		}
 		return "https://uploads.mangadex.org/covers/" + mangaID + "/" + filename + ".256.jpg";
 	}
 	

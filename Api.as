@@ -1,5 +1,5 @@
 ﻿class Api {
-	static var BaseURL:String = "https://giganig.ga/dex/";
+	static var BaseURL:String = "http://giganig.ga/dex/";
 	
 	static function fetchHomepageManga(callback:Function, page:Number, amount:Number, search:String):Void {
 		trace("FETCHHOMEPAGE:" + page.toString());
@@ -98,9 +98,9 @@
 	
 	static function getCoverURL(mangaID:String, filename:String) {
 		if (filename == undefined or mangaID == undefined) {
-			return "https://mangadex.org/_nuxt/img/cover-placeholder.d12c3c5.jpg";
+			return "http://crafty.moe/media/gunztile.png";
 		}
-		return "https://uploads.mangadex.org/covers/" + mangaID + "/" + filename + ".256.jpg";
+		return "http://giganig.ga/covers/" + mangaID + "/" + filename + ".256.jpg";
 	}
 	
 	private static function fetchText(url:String, callback:Function):Void {

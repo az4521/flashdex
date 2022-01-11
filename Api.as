@@ -48,19 +48,24 @@
 		});
 	}
 	
-	static function fetchChapterList(callback:Function, mangaID:String, Lang:String, loading:Function):Void {
+	static function fetchChapterList(callback:Function, mangaID:String, Lang:String, loading:Function):Function {
+		var cancel:Object = {val:false};
 		trace("FETCHCHAPTERLIST");
 		if (Lang==undefined) {Lang="en";}
-		var url:String = BaseURL + "manga/"+mangaID+"/feed?limit=50&includes[]=scanlation_group&order[volume]=desc&order[chapter]=desc";
+		var url:String = BaseURL + "manga/"+mangaID+"/feed?limit=10&includes[]=scanlation_group&order[volume]=desc&order[chapter]=desc";
 		url = url + "&translatedLanguage[]=" + Lang + "&offset=";
-		fetchChaptersRecursive(function(chapters:Array) {
-			callback(chapters);
-		}, url, 0, loading);
+		fetchChaptersRecursive(callback, url, 0, loading, cancel);
+		return function() {
+			cancel.val = true;
+		}
 	}
 	
-	private static function fetchChaptersRecursive(callback:Function, url:String, fetched:Number, loading:Function) {
+	private static function fetchChaptersRecursive(callback:Function, url:String, fetched:Number, loading:Function, cancel:Object) {
 		var chapters:Array = new Array();
-
+		if (cancel.val) {
+			trace("chapter loading stopped");
+			return;
+		}
 		fetchText(url + fetched, function (str:String) {
 			try {
 				JSON.parse(str, function(dat:Object) {
@@ -85,7 +90,7 @@
 					if (amount < dat["total"]) {
 						fetchChaptersRecursive(function (chp:Array) {
 							callback(chapters.concat(chp));
-						}, url, amount, loading);
+						}, url, amount, loading, cancel);
 					} else {
 						callback(chapters);
 					}

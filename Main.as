@@ -8,11 +8,21 @@
 	static var imageClips:Array = new Array();
 	static var placeHolderClips:Array = new Array(ROWS*COLS);
 	static var uiElementClips:Array = new Array();
+	static var cancelFunctions:Array = new Array();
 	static var search:String = "";
 	static var keyListeners:Object = new Array();
 	
 	static function init() {
 		prepareHomePage(false, "");
+	}
+	
+	static function cancelLoading() {
+		for (var fun in cancelFunctions) {
+			cancelFunctions[fun]();
+		}
+		while (cancelFunctions.length > 0) {
+			cancelFunctions.pop();
+		}
 	}
 	
 	static function clearImages() {
@@ -46,6 +56,7 @@
 		search = Query;
 		trace("LOADING PAGE:"+page+skipUI);
 
+		cancelLoading();
 		clearImages();
 		if (skipUI != true) { //set up UI
 			clearUI();
@@ -115,7 +126,7 @@
 			for (var row = 0; row<ROWS; row++) {
 				for (var col = 0; col<COLS; col++) {
 					if (a[row*COLS + col] != undefined) {
-						a[row*COLS + col].getCover(function(clip:MovieClip, row:Number, col:Number){
+						var cancelFunction = a[row*COLS + col].getCover(function(clip:MovieClip, row:Number, col:Number){
 							placeHolderClips[row*COLS + col].removeMovieClip();
 							placeHolderClips[row*COLS + col] = undefined;
 							imageClips.push(clip);
@@ -125,6 +136,7 @@
 								prepareMangaDetails(a[row*COLS + col]);
 							}
 						}, row, col, THUMB_WIDTH, THUMB_HEIGHT);
+						cancelFunctions.push(cancelFunction);
 					} else {
 						placeHolderClips[row*COLS + col].removeMovieClip();
 						placeHolderClips[row*COLS + col] = undefined;
@@ -154,6 +166,7 @@
 		trace(manga.Title);
 		clearUI();
 		clearImages();
+		cancelLoading();
 		
 		//set up UI
 		var backBtn:MovieClip = _root.attachMovie("BackBtn", "backBtn", _root.getNextHighestDepth());
@@ -199,7 +212,7 @@
 			clip._x = 0
 		}, 0, 0, Stage.width/5, Stage.width/5 * 1.5);
 		
-		Api.fetchChapterList(function(chapters:Array) {
+		var cancelFunction = Api.fetchChapterList(function(chapters:Array) {
 			//chapters finished loading
 			chapterProgress.removeTextField();
 			spinner.removeMovieClip();
@@ -210,5 +223,6 @@
 			//loading progress notification
 			chapterProgress.text = Math.round(loaded / total * 100) + "%"
 		});
+		cancelFunctions.push(cancelFunction);
 	}
 }

@@ -18,18 +18,29 @@
 		this.Description = Description;
 	}
 	
-	function getCover(callback:Function, row:Number, col:Number, wd:Number, ht:Number):Void {
+	function getCover(callback:Function, row:Number, col:Number, wd:Number, ht:Number):Function {
 		var mcHolder:MovieClip = _root.createEmptyMovieClip("cover_"+this.ID, _root.getNextHighestDepth());
 		var mcLoader:MovieClipLoader = new MovieClipLoader();
-		var listener : Object = {};
+		var listener:Object = {};
+		var cancelled:Boolean = false;
 		listener.onLoadInit = function (mc:MovieClip) {
 			mc._width = wd;
 			mc._height = ht;
 		}
 		listener.onLoadComplete = function(mc:MovieClip){
-			callback(mc, row, col);
+			if (not cancelled) {
+				trace("onloadcomplete - callback")
+				callback(mc, row, col);
+			} else {
+				trace("onloadcomplete - cancelled")
+				mc.removeMovieClip();
+			}
 		}
 		mcLoader.addListener(listener);	
 		mcLoader.loadClip(Api.getCoverURL(this.ID, this.CoverURL), mcHolder);
+		return function() {
+			cancelled = true;
+			mcLoader.loadClip(null, mcHolder);
+		}
 	}
 }
